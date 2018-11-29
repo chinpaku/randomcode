@@ -42,7 +42,8 @@ def  checkNmapResultsAndAttack():
 	outport443 = subprocess.call(['grep','443/tcp',os.path.abspath(nmapfile)])
 	if not outport80 > 0:
 		print "found port 80 - Web"
-		probeport80()
+		webAttack()
+		#probeport80()
 	if not outport445 >0:
 		print "found port 445 - SMB"
 		probesmb()
@@ -74,6 +75,117 @@ def probeport443():
 	print "Running Nikto ---"
 	nik = subprocess.call(['nikto','-o','nikto-'+target+'.txt','-h',target])
 	#sys.exit(0)
+
+def webAttack():
+	global target
+
+	tmp=1
+	while tmp>0:
+		print "------Web Attack ----"
+		print "------Available options ----"
+		print "1 : gobuster"
+		print "2 : Nikto"
+		print "3 : dirb"
+		print "0 : Exit"
+		inp = int(input("Please select an option"))
+	
+		if inp==1:
+			print "Runnig gobuster ----"
+			try:
+				dirb = subprocess.call(['gobuster','-w', '/usr/share/wordlists/dirb/common.txt','-o','gobuster-'+target+'.txt','-u', 'http://'+target])
+				print dirb
+			except:
+				print "Error runnig gobuster...."
+		elif inp==2:
+			print "Running Nikto ---"
+			nik = subprocess.call(['nikto','-o','nikto-'+target+'.txt','-h',target])
+	
+		elif inp==0:
+			tmp=0
+
+
+
+def InitialProbe():
+	global target
+	global nmapfile
+
+	ini=1
+	while ini>0:
+		print "------Initial probe ----"
+		print "------Available options ----"
+		print "1 : run nmap basic: nmap -sV -vv -oN <host>"
+		print "2 : run nmap all comprehensive : nmap -p- -T4 -A -vv <host>"
+		print "3 : show nmap results"
+		print "4 : check nmap results and probe ports"
+		print "0 : Exit"
+		inp = int(input("Please select an option"))
+	
+		if inp==1:
+			print "Runnig nmap basic : nmap -sV -vv -oN <host>"
+			try:
+				abspath = os.path.abspath(nmapfile)
+
+				if os.path.exists(abspath):
+					print "nmap already done on the host"
+					inpfile = raw_input("run nmap again and overrite file? y/n ")
+					if inpfile=="y":
+						out = subprocess.call(['nmap','-sV','-vv','-oN',nmapfile, target])
+						print out
+					elif inpfile=="n":
+						print "going back to main menu"
+						#sys.exit(1)
+					else:
+						print "wrong input"
+					f = open(abspath,'r')
+					file_content = f.read()
+					print file_content
+				else:
+					out = subprocess.call(['nmap','-sV','-vv','-oN',nmapfile, target])
+					print out
+				#checkNmapResultsAndAttack()
+			except Exception as e:
+				print "Error runnig nmap comprehensive...."+str(e)
+		elif inp==2:
+			print "Running nmap comprehensive : nmap -p- -T4 -A -vv <host>"
+			try:
+				abspath = os.path.abspath(nmapfile)
+
+				if os.path.exists(abspath):
+					print "nmap already done on the host"
+					inpfile = raw_input("run nmap again and overrite file? y/n ")
+					if inpfile=="y":
+						out = subprocess.call(['nmap','-p-','-vv','-T4','-A','-oN',nmapfile, target])
+						print out
+					elif inpfile=="n":
+						print "going back to main menu"
+						#sys.exit(1)
+					else:
+						print "wrong input"
+				else:
+					out = subprocess.call(['nmap','-p-','-vv','-T4','-A','-oN',nmapfile, target])
+					print out
+				#checkNmapResultsAndAttack()
+			except Exception as e:
+				print "Error runnig nmap comprehensive...."+str(e)
+		elif inp==3:
+			try:
+				abspath = os.path.abspath(nmapfile)
+
+				if os.path.exists(abspath):
+					print "opening nmap scan fie"
+					f = open(abspath,'r')
+					file_content = f.read()
+					print file_content
+				else:
+					print "nmap scan file does ot exists"
+				#checkNmapResultsAndAttack()	
+			except:
+				print "Error runnig nmap comprehensive...."
+		elif inp==4:
+			checkNmapResultsAndAttack()
+		elif inp==0:
+			ini=0
+
 
 def probeport80():
 	global target
@@ -192,14 +304,17 @@ def main():
 			#sys.exit(0)
 
 	if len(target):
-		print "starting scan on " + target 
+		#print "starting scan on " + target 
+		print "Initial screen" 
+		
 		nmapfile = 'nmap-' + target + '.txt'
-		nmap()
+		InitialProbe()
+		#nmap()
 		#print "setting username"
                # username = a
                 #print username
-                print "searching nmap results for next attack vectors/ports"
-		checkNmapResultsAndAttack()
+                #print "searching nmap results for next attack vectors/ports"
+		#checkNmapResultsAndAttack()
 
 
 
