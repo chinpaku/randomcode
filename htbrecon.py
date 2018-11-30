@@ -78,30 +78,82 @@ def probeport443():
 
 def webAttack():
 	global target
+	gobusterfile = 'gobuster-'+target+'.txt'
+	niktofile = 'nikto-'+target+'.txt'
+	dirbfile = 'dirb-'+target+'.txt'
+	wgetresponsefile = 'wget'+target+'.txt'
 
 	tmp=1
 	while tmp>0:
 		print "------Web Attack ----"
-		print "------Available options ----"
 		print "1 : gobuster"
 		print "2 : Nikto"
 		print "3 : dirb"
+		print "4 : wget and print response"
 		print "0 : Exit"
 		inp = int(input("Please select an option"))
-	
+		print inp
 		if inp==1:
-			print "Runnig gobuster ----"
 			try:
-				dirb = subprocess.call(['gobuster','-w', '/usr/share/wordlists/dirb/common.txt','-o','gobuster-'+target+'.txt','-u', 'http://'+target])
-				print dirb
-			except:
-				print "Error runnig gobuster...."
+				gobusterabspath = os.path.abspath(gobusterfile)
+				if os.path.exists(gobusterabspath):
+					inpfile = raw_input("gobuster scan fie exists, do you want to run scan again and overwrite file? y/n ")
+					if inpfile=="y":
+						print "Runnig gobuster ----"
+						dirb = subprocess.call(['gobuster','-w', '/usr/share/wordlists/dirb/common.txt','-o','gobuster-'+target+'.txt','-u', 'https://'+target])
+						print dirb
+					elif inpfile=="n":
+						print "showing gobuster scan results"
+						f = open(gobusterabspath,'r')
+						file_content = f.read()
+						print file_content
+						#sys.exit(1)
+					else:
+						print "wrong input"
+				else:
+					print "Runnig gobuster ----"
+					dirb = subprocess.call(['gobuster','-w', '/usr/share/wordlists/dirb/common.txt','-o','gobuster-'+target+'.txt','-u', 'http://'+target])
+					print dirb
+			except Exception as e:
+				print "Error runnig gobuster...." + str(e)
 		elif inp==2:
-			print "Running Nikto ---"
-			nik = subprocess.call(['nikto','-o','nikto-'+target+'.txt','-h',target])
+			try:
+				niktoabspath = os.path.abspath(niktofile)
+				if os.path.exists(niktoabspath):
+					inpfile = raw_input("Nikto scan fie exists, do you want to run scan again and overwrite file? y/n ")
+					if inpfile=="y":
+						print "Running Nikto ---"
+						nik = subprocess.call(['nikto','-o','nikto-'+target+'.txt','-h',target])
+						print nik
+					elif inpfile=="n":
+						print "showing Nikto scan results"
+						f = open(niktoabspath,'r')
+						file_content = f.read()
+						print file_content
+						#sys.exit(1)
+					else:
+						print "wrong input"
+				else:
+					print "Running Nikto ---"
+					nik = subprocess.call(['nikto','-o','nikto-'+target+'.txt','-h',target])
+					print nik
+
+			except Exception as e:
+				print "error runing nikto - " + str(e)
+
+		elif inp==4:
+			print "Running wget http://"+target
+			wgt = subprocess.call(['wget','-O',wgetresponsefile,'http://',target])
+			wgetoabspath = os.path.abspath(wgetresponsefile)
+			if os.path.exists(wgetoabspath):
+				f = open(wgetoabspath,'r')
+				file_content = f.read()
+				print file_content
 	
 		elif inp==0:
 			tmp=0
+		else:
+			print "select correct option"
 
 
 
@@ -111,14 +163,13 @@ def InitialProbe():
 
 	ini=1
 	while ini>0:
-		print "------Initial probe ----"
 		print "------Available options ----"
 		print "1 : run nmap basic: nmap -sV -vv -oN <host>"
 		print "2 : run nmap all comprehensive : nmap -p- -T4 -A -vv <host>"
 		print "3 : show nmap results"
 		print "4 : check nmap results and probe ports"
 		print "0 : Exit"
-		inp = int(input("Please select an option"))
+		inp = int(input("Please select an option : "))
 	
 		if inp==1:
 			print "Runnig nmap basic : nmap -sV -vv -oN <host>"
@@ -177,7 +228,7 @@ def InitialProbe():
 					file_content = f.read()
 					print file_content
 				else:
-					print "nmap scan file does ot exists"
+					print "nmap scan file does not exists"
 				#checkNmapResultsAndAttack()	
 			except:
 				print "Error runnig nmap comprehensive...."
