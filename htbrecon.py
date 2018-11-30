@@ -4,6 +4,7 @@ import getopt
 import os
 from ftplib import FTP
 
+
 username = ""
 smbshare = ""
 command = ""
@@ -91,7 +92,7 @@ def webAttack():
 		print "3 : dirb"
 		print "4 : wget and print response"
 		print "0 : Exit"
-		inp = int(input("Please select an option"))
+		inp = int(input("Please select an option : "))
 		print inp
 		if inp==1:
 			try:
@@ -140,7 +141,32 @@ def webAttack():
 
 			except Exception as e:
 				print "error runing nikto - " + str(e)
+		elif inp==3:
+			try:
+				dirbabspath = os.path.abspath(dirbfile)
+				if os.path.exists(dirbabspath):
+					inpfile = raw_input("dirb scan fie exists, do you want to run scan again and overwrite file? y/n ")
+					if inpfile=="y":
+						print "Running dirb ---"
+						print 'dirb',' http://'+target ,'-o','dirb-'+target+'.txt'
+						nik = subprocess.call(['dirb','http://'+target ,'-o','dirb-'+target+'.txt'])
+						print nik
+					elif inpfile=="n":
+						print "showing dirb scan results"
+						f = open(dirbabspath,'r')
+						file_content = f.read()
+						print file_content
+						#sys.exit(1)
+					else:
+						print "wrong input"
+				else:
+					print "Running dirb ---"
+					print 'dirb',' http://'+target ,'-o','dirb-'+target+'.txt'
+					nik = subprocess.call(['dirb','http://'+target ,'-o','dirb-'+target+'.txt'])
+					print nik
 
+			except Exception as e:
+				print "error runing nikto - " + str(e)
 		elif inp==4:
 			print "Running wget http://"+target
 			wgt = subprocess.call(['wget','-O',wgetresponsefile,'http://',target])
