@@ -41,6 +41,7 @@ def  checkNmapResultsAndAttack():
 	outport21 = subprocess.call(['grep','21/tcp',os.path.abspath(nmapfile)])
 	outport139 = subprocess.call(['grep','139/tcp',os.path.abspath(nmapfile)])
 	outport443 = subprocess.call(['grep','443/tcp',os.path.abspath(nmapfile)])
+	outport8080 = subprocess.call(['grep','8080/tcp',os.path.abspath(nmapfile)])
 	if not outport80 > 0:
 		print "found port 80 - Web"
 		webAttack()
@@ -48,9 +49,6 @@ def  checkNmapResultsAndAttack():
 	if not outport445 >0:
 		print "found port 445 - SMB"
 		probesmb()
-
-	print "testing FTP"
-
 	if not outport21 >0:
 		print "found port 21 - FTP"
 		probeftp()
@@ -60,6 +58,10 @@ def  checkNmapResultsAndAttack():
 	if not outport443 >0:
 		print "found port 443 - Web"
 		probeport443()
+	if not outport8080 > 0:
+		print "found port 8080 - Web"
+		webAttack()
+		#probeport80()
 	sys.exit(0)
 
 
@@ -74,7 +76,10 @@ def probeport443():
 
 
 	print "Running Nikto ---"
-	nik = subprocess.call(['nikto','-o','nikto-'+target+'.txt','-h',target])
+	try:
+                nik = subprocess.call(['nikto','-o','nikto-'+target+'.txt','-h',target])
+        except:
+                print "Error running Nikto"
 	#sys.exit(0)
 
 def webAttack():
@@ -168,14 +173,16 @@ def webAttack():
 			except Exception as e:
 				print "error runing nikto - " + str(e)
 		elif inp==4:
-			print "Running wget http://"+target
-			wgt = subprocess.call(['wget','-O',wgetresponsefile,'http://',target])
-			wgetoabspath = os.path.abspath(wgetresponsefile)
-			if os.path.exists(wgetoabspath):
-				f = open(wgetoabspath,'r')
-				file_content = f.read()
-				print file_content
-	
+                        try:
+                                print "Running wget http://"+target
+                                wgt = subprocess.call(['wget','-O',wgetresponsefile,'http://',target])
+                                wgetoabspath = os.path.abspath(wgetresponsefile)
+                                if os.path.exists(wgetoabspath):
+                                        f = open(wgetoabspath,'r')
+                                        file_content = f.read()
+                                        print file_content
+                        except Exception as e:
+				print "Error running wget on URL"	
 		elif inp==0:
 			tmp=0
 		else:
