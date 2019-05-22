@@ -62,7 +62,7 @@ def  checkNmapResultsAndAttack():
 		print "found port 8080 - Web"
 		webAttack()
 		#probeport80()
-	sys.exit(0)
+	#sys.exit(0)
 
 
 def probeport443():
